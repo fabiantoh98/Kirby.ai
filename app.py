@@ -98,10 +98,18 @@ def health_goal_page():
         st.write("")
         with st.spinner("Extracting text..."):
             client = genai.Client(api_key="")
-            text = pytesseract.image_to_string(image)
-            response = client.models.generate_content(
-                model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
-            )
+            try:
+                text = pytesseract.image_to_string(image)
+            except Exception as e:
+                text = ""
+
+            try:    
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
+                )
+            except Exception as e:
+                response = {"text": ""}
+            
             print(response.text)
         if response.text.strip():
             # ingredients = load_ingredients()
