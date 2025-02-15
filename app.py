@@ -83,7 +83,7 @@ def health_goal_page():
         st.image(image, caption='Uploaded Image.', use_container_width=True)
         st.write("")
         with st.spinner("Extracting text..."):
-            response = get_recipes_from_image(image)
+            response = get_recipes_from_image(uploaded_file)
             meals = get_meals_from_response(json.loads(response).get("ingredients", []))
             # st.write(meals)
             # response_data = json.loads(response)

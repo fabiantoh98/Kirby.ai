@@ -1,19 +1,35 @@
 from openai import OpenAI
-import pytesseract
+# import pytesseract
 import pandas as pd
 import os
+from google import genai
 
+from PIL import Image
 from dotenv import load_dotenv
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 def load_ingredients():
     return pd.read_json("ingredients.json").to_string()
 
-def get_recipes_from_image(image):
 
-    text = pytesseract.image_to_string(image)
+def extract_ingredients_from_image(image_path):
+    client = genai.Client(api_key=gemini_api_key)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", 
+        contents=[Image.open(image_path), "What foods are in here, give me a list in this format"]
+    )
+    print(response.text)
+    return response.text
+    
+
+def get_recipes_from_image(image_path):
+
+    # text = pytesseract.image_to_string(image_path)
+    # print(text)
+    text = extract_ingredients_from_image(image_path)
     ingredients = load_ingredients()
     client = OpenAI(
         api_key = openai_api_key
@@ -21,7 +37,7 @@ def get_recipes_from_image(image):
     prompt = f"""
     You are an AI assistant helping a user extract ingredients from an image and cross-reference them with a given list of ingredients. 
     Given the food items in here: {text}, cross-reference/map them with the ingredients in here: {ingredients} and return the corresponding ingredients list. 
-    The words don't have to be exactly the same, but you should return a list of ingredients that exist in the given list.
+    The words don't have to be exactly the same, but you should return a list of ingredients that only exist in the given list.
     """
 
 
