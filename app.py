@@ -1,8 +1,6 @@
 import streamlit as st
-import pytesseract
+
 from PIL import Image
-from google import genai
-from google.genai import types
 import pandas as pd
 import numpy as np
 
@@ -31,6 +29,8 @@ st.markdown(
     }
     /* Sidebar style tweaks */
     section[data-testid="stSidebar"] {
+
+        background-color: #bab6b6;
         background-color: black;
     }
     section[data-testid="stSidebar"] .css-1d391kg {
@@ -42,12 +42,14 @@ st.markdown(
 )
 
 health_goals = {
-    "Reduce Heatiness" : '''
-        A therapeutic approach aimed to remove excessive heat within the body.
-        Some common causes of heatiness includes exposure to hot weather, inflammatory conditions,
-        emotional imbalances (stress, anger) and overconsumption of spicy and warming foods.
-        ''',
-    "Improve Immunity" : "to improve your immunity"
+    "Boost Metabolism" : "Optimize your metabolism and support healthy weight management with metabolism-boosting dishes.",
+    "Boost Energy" : "Recharge your body with nutrient-rich meals designed to enhance vitality and combat fatigue.",
+    "Enhance Focus": "Sharpen your mental clarity and concentration with brain-boosting ingredients.",
+    "Improve Immunity": "Strengthen your body's natural defenses with immune-boosting ingredients and nourishing recipes.",
+    "Improve Mobility": "Enhance joint flexibility and bone health with meals designed to support overall mobility.",
+    "Detox": "Assist your body's natural detoxification processes with cleansing and purifying foods.",
+    "Enhance Mood": "Elevate your mood and promote emotional well-being with mood-enhancing ingredients.",
+    "Aid Sleep Quality": "Improve your sleep quality and ensure restful nights with calming and sleep-inducing ingredients."
 }
 
 top_5_recipe = {
@@ -66,20 +68,20 @@ def main():
     st.sidebar.write("**Version:** 0.0.1")
     if st.sidebar.button("Logout"):
         st.sidebar.write("You have logged out.")
-    st.title("Kitchen Co-pilot Medicinal Cooking Recipes")
+
+    st.title("Kirby.AI")
     st.markdown(
         """
         Welcome to the **Kirby.AI**: The best foody recommender in the market.
         """
     )
+
     if selected_page == "Health Goals":
         health_goal_page()
     elif selected_page == "Top Recipes":
-        top_recipe_page()
+        top_recipe_page() 
 
 def health_goal_page():
-    st.subheader("Food Recommender")
-
     st.subheader("Select Your Health Goal: ")
     # Load each of the options
     for goal, description in health_goals.items():
@@ -110,14 +112,13 @@ def health_goal_page():
     #     else:
     #         st.write("No text found in the image.")
 
-
-    
 def top_recipe_page():
     st.subheader("Display")
 
 
 if __name__ == "__main__":
     main()
+
 
 
 
