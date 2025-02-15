@@ -3,6 +3,7 @@ from openai import OpenAI
 import pandas as pd
 import os
 from google import genai
+import streamlit as st
 
 from PIL import Image
 from dotenv import load_dotenv
@@ -11,10 +12,12 @@ load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
+@st.cache_data # NOTE: Cache the data so it doesn't need to be reloaded every time the page is refreshed. May change ltr
 def load_ingredients():
     return pd.read_json("ingredients.json").to_string()
 
 
+@st.cache_data # NOTE: Cache the data so it doesn't need to be reloaded every time the page is refreshed. May change ltr
 def extract_ingredients_from_image(image_path):
     client = genai.Client(api_key=gemini_api_key)
     response = client.models.generate_content(
@@ -24,7 +27,7 @@ def extract_ingredients_from_image(image_path):
     print(response.text)
     return response.text
     
-
+@st.cache_data # NOTE: Cache the data so it doesn't need to be reloaded every time the page is refreshed. May change ltr
 def get_recipes_from_image(image_path):
 
     # text = pytesseract.image_to_string(image_path)
@@ -95,6 +98,7 @@ def get_recipes_from_image(image_path):
     )
     return response.choices[0].message.content
 
+@st.cache_data # NOTE: Cache the data so it doesn't need to be reloaded every time the page is refreshed. May change ltr
 def get_meals_from_response(ingredients):
     #convert ingredients to lowercase
     ingredients = [ingredient.lower() for ingredient in ingredients]

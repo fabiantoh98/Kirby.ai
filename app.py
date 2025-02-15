@@ -84,14 +84,14 @@ def health_goal_page():
         st.write("")
         with st.spinner("Extracting text..."):
             response = get_recipes_from_image(uploaded_file)
-            meals = get_meals_from_response(json.loads(response).get("ingredients", []))
+            similarity_scores = get_meals_from_response(json.loads(response).get("ingredients", []))
             # st.write(meals)
             # response_data = json.loads(response)
             # ingredients = response_data.get("ingredients", [])
             # st.write("Extracted Ingredients:", ingredients)
-            st.write("Extracted Meals:", meals)
+            st.write("Similarity Scores:", similarity_scores)
         if response.strip():
-            st.write("Extracted Text", json.loads(response), height=200)
+            st.write("Extracted Ingredients", json.loads(response), height=200)
         else:
             st.write("No text found in the image.")
 
