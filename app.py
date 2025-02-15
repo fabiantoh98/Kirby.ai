@@ -6,6 +6,8 @@ import numpy as np
 from get_openai_response import get_recipes_from_image, get_meals_from_response
 from health_matching import find_matching_recipes
 import json
+import random
+import time
 
 # ----- PAGE CONFIG & STYLES -----
 st.set_page_config(
@@ -127,6 +129,7 @@ def health_goal_page():
     # Image upload section
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
+        st.balloons()
         image = np.array(Image.open(uploaded_file))
         st.image(image, caption='Uploaded Image.', use_container_width=False)
         st.write("")
@@ -136,16 +139,31 @@ def health_goal_page():
             print("Setting similarity scores:", similarity_scores)
             st.session_state['similarity_scores'] = similarity_scores
             print("Similarity scores after setting:", st.session_state.similarity_scores)
-            st.write("Similarity Scores:", similarity_scores)
-        if response.strip():
-            st.write("Extracted Ingredients", json.loads(response))
-        else:
-            st.write("No text found in the image.")
+            # st.write("Similarity Scores:", similarity_scores["similarity_scores"])
+            if response.strip():
+                st.subheader("Extracted Ingredients:")
+                # json.loads(response
+                ingredients = json.loads(response).get("ingredients", [])
+                df_ingredients = pd.DataFrame(ingredients, columns=["Ingredients"])
+                df_ingredients.index += 1
+                st.dataframe(df_ingredients, use_container_width=True)
+
+            else:
+                st.write("No text found in the image.")
+            st.subheader("Recommended Foods:")
+            best_meals = []
+            for _, v in similarity_scores["similarity_scores"]:
+                best_meals.append({"Meal Name": v["name"], "What you have": v["intersection"], "What you don't have": v["exception"]})
+
+            meals_df = pd.DataFrame(best_meals, columns=["Meal Name", "What you have", "What you don't have"])
+            meals_df.index += 1
+            st.dataframe(meals_df, use_container_width=True)
+
 
 def top_recipe_page():
     print("Entering top_recipe_page with similarity scores:", st.session_state.similarity_scores)
     st.subheader("Top 5 Recipe")
-    st.markdown("This page displays recipes along with details including image, meal name, explanation, instructions, and YouTube link.")
+    st.markdown("This page displays *recipes* along with details including images, meal names, explanatios, instructions, and YouTube links.")
     st.write("Current Similarity Scores:", st.session_state.similarity_scores)
     
     goal = st.session_state.selected_goal
@@ -209,6 +227,22 @@ def top_recipe_page():
 def main():
     # Initialize session state
     initialize_session_state()
+
+    # Toaster tips
+    tips = [
+        "Did you get your healthy meal today?",
+        "Remember to stay hydrated!",
+        "A balanced diet is a key to a healthy life.",
+        "Don't forget to include fruits and vegetables in your meals.",
+        "Healthy eating is a journey, not a destination.",
+        "Small changes can make a big difference in your health.",
+        "Eat a variety of foods to get all the nutrients you need.",
+        "Moderation is the key to a healthy diet.",
+        "Enjoy your food, but eat less.",
+        "Make half your plate fruits and vegetables."
+    ]
+
+    st.toast(random.choice(tips))
     
     with st.container():
         st.sidebar.title("Navigation")
@@ -228,13 +262,16 @@ def main():
         st.markdown("""
             Welcome to **Kirby.AI**: The best foody recommender in the market.
         """)
-        
+
+                
         # Page routing based on session state
         if st.session_state.clicked or selected_page == "Top Recipes":
             top_recipe_page()
             st.session_state.clicked = False
         else:
             health_goal_page()
+
+
 
 if __name__ == "__main__":
     main()
