@@ -31,11 +31,7 @@ st.markdown(
     }
     /* Sidebar style tweaks */
     section[data-testid="stSidebar"] {
-<<<<<<< HEAD
-        background-color: #bab6b6;
-=======
         background-color: black;
->>>>>>> 549ccdaaf52c1aa8d63644e7f9db7f96fba61b31
     }
     section[data-testid="stSidebar"] .css-1d391kg {
         color: black;
