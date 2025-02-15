@@ -4,6 +4,7 @@ import pandas as pd
 import os
 
 
+
 def load_ingredients():
     return pd.read_json("ingredients.json").to_string()
 
@@ -12,8 +13,13 @@ def get_recipes_from_image(image):
     text = pytesseract.image_to_string(image)
     ingredients = load_ingredients()
     client = OpenAI(
-        api_key=os.getenv("OPENAI_API_KEY")
+        api_key=""
     )
+    prompt = f"""
+    You are an AI assistant helping a user extract ingredients from an image and cross-reference them with a given list of ingredients. 
+    Given the food items in here: {text}, cross-reference/map them with the ingredients in here: {ingredients} and return the corresponding ingredients list. 
+    The words don't have to be exactly the same, but you should return a list of ingredients that exist in the given list.
+    """
 
 
     response = client.chat.completions.create(
@@ -24,7 +30,7 @@ def get_recipes_from_image(image):
             "content": [
                 {
                 "type": "text",
-                "text": "Given the food items in here: {text}, cross reference/map it with the ingredients in here: {ingredients} and return the corresponding ingredients list meal indivually."
+                "text": prompt
                 }
             ]
             },
