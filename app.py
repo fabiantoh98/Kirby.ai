@@ -4,6 +4,7 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 from get_openai_response import get_recipes_from_image, get_meals_from_response
+from health_matching import find_matching_recipes
 import json
 
 # ----- PAGE CONFIG & STYLES -----
@@ -114,6 +115,7 @@ def health_goal_page():
         col1, col2, col3 = st.columns(3)
         for i, (goal, description) in enumerate(health_goals.items()):
             with eval(f"col{i % 3 + 1}").expander(goal):
+                    print(goal)
                     st.write(description)
                     st.button(f"Select {goal}", key=f"btn_{goal}", 
                             on_click=go_to_recipe_page, args=(goal,))
@@ -143,14 +145,15 @@ def health_goal_page():
 def top_recipe_page():
     st.subheader("Top 5 Recipe")
     st.markdown("This page displays recipes along with details including image, meal name, explanation, instructions, and YouTube link.")
-
+    goal = st.session_state.selected_goal
+    recipes = find_matching_recipes([st.session_state.selected_goal]).get(goal)
     # Load the JSON file from the data folder
-    try:
-        with open("data/small_data.json", "r") as f:
-            recipes = json.load(f)
-    except Exception as e:
-        st.error(f"Error loading data/small_data.json: {e}")
-        return
+    # try:
+    #     with open("data/small_data.json", "r") as f:
+    #         recipes = json.load(f)
+    # except Exception as e:
+    #     st.error(f"Error loading data/small_data.json: {e}")
+    #     return
 
     # Loop over each recipe in the JSON file and display the details
     for rec in recipes:
@@ -168,22 +171,32 @@ def top_recipe_page():
                 st.image(image_url, width=400)
             else:
                 st.text("No image available.")
+        ingredients_dict = rec.get('ingredients', 'N/A')
+        ingredients_list = []
+        for k,v in ingredients_dict.items():
+            ingredients_list.append({"Ingredient": k, "Quantity": v})
+        df_ingredients = pd.DataFrame(ingredients_list)
+        df_ingredients.index += 1 
         
         with col2:
             with st.expander("Show Details"):
-                st.markdown(f"**Primary:** {rec.get('primary', 'N/A')}")
-                st.markdown(f"**Confidence:** {rec.get('confidence', 'N/A')}")
-                st.markdown(f"**Explanation:** {rec.get('exp', 'N/A')}")
-                st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
-                st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
+                st.markdown(f"**Health Goal:** {goal}")
+                st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
+                st.markdown(f"**Explanation:** {rec.get('reason', 'N/A')}")
+                
+                st.dataframe(df_ingredients, use_container_width=True)
+
+                st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
+                # st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
+                # st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
                 st.markdown("**Instructions:**")
                 st.write(rec.get("strInstructions", "N/A"))
-                youtube_link = rec.get("strYoutube")
-                if youtube_link:
-                    st.markdown(f"**YouTube Link:** {youtube_link}")
-                    st.video(youtube_link)
-                else:
-                    st.text("No YouTube link available.")
+                # youtube_link = rec.get("strYoutube")
+                # if youtube_link:
+                #     st.markdown(f"**YouTube Link:** {youtube_link}")
+                #     st.video(youtube_link)
+                # else:
+                #     st.text("No YouTube link available.")
 
     st.markdown("---")
     st.success("End of recipes.")
