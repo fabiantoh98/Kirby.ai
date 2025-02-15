@@ -1,9 +1,6 @@
 import streamlit as st
 
-import pytesseract
 from PIL import Image
-from google import genai
-from google.genai import types
 import pandas as pd
 import numpy as np
 
@@ -93,25 +90,27 @@ def health_goal_page():
             if st.button(goal):
                 top_recipe_page()
 
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-    if uploaded_file is not None:
-        image = np.array(Image.open(uploaded_file))
-        st.image(image, caption='Uploaded Image.', use_container_width=True)
-        st.write("")
-        with st.spinner("Extracting text..."):
-            client = genai.Client(api_key="")
-            text = pytesseract.image_to_string(image)
-            response = client.models.generate_content(
-                model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
-            )
-            print(response.text)
-        if response.text.strip():
-            # ingredients = load_ingredients()
-            # st.write(ingredients)
-            st.text_area("Extracted Text", response.text, height=200)
-        else:
-            st.write("No text found in the image.")
+
+    # uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+    # if uploaded_file is not None:
+    #     image = np.array(Image.open(uploaded_file))
+    #     st.image(image, caption='Uploaded Image.', use_container_width=True)
+    #     st.write("")
+    #     with st.spinner("Extracting text..."):
+    #         client = genai.Client(api_key="")
+    #         text = pytesseract.image_to_string(image)
+    #         response = client.models.generate_content(
+    #             model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
+    #         )
+    #         print(response.text)
+    #     if response.text.strip():
+    #         # ingredients = load_ingredients()
+    #         # st.write(ingredients)
+    #         st.text_area("Extracted Text", response.text, height=200)
+    #     else:
+    #         st.write("No text found in the image.")
 
 def top_recipe_page():
     st.subheader("Display")
