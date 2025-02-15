@@ -84,6 +84,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
 health_goals = {
     "Boost Energy": "Recharge your body with nutrient-rich meals designed to enhance vitality and combat fatigue.",
     "Boost Metabolism": "Optimize your metabolism and support healthy weight management.",
@@ -105,112 +106,92 @@ def initialize_session_state():
     if 'similarity_scores' not in st.session_state:
         st.session_state.similarity_scores = None
 
-def go_to_recipe_page(goal, similarity_scores):
+def go_to_recipe_page(goal):
     st.session_state.clicked = True
     st.session_state.selected_goal = goal
     st.session_state.goal_description = health_goals[goal]
-    st.session_state.similarity_scores = similarity_scores
 
 def health_goal_page():
     with st.container():
         st.subheader("Select Your Health Goal:")
-        # Create three columns
         col1, col2, col3 = st.columns(3)
         for i, (goal, description) in enumerate(health_goals.items()):
             with eval(f"col{i % 3 + 1}").expander(goal):
-                    print(goal)
-                    st.write(description)
-                    st.button(f"Select {goal}", key=f"btn_{goal}", 
-                            on_click=go_to_recipe_page, args=(goal,st.session_state.similarity_scores,))
+                st.write(description)
+                st.button(f"Select {goal}", key=f"btn_{goal}", 
+                        on_click=go_to_recipe_page, args=(goal,))
         with col3.expander(" ... "):
             st.write("""... more to come.""")
-
 
     # Image upload section
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         image = np.array(Image.open(uploaded_file))
         st.image(image, caption='Uploaded Image.', use_container_width=False)
-        st.write("")
+        
         with st.spinner("Extracting text..."):
             response = get_recipes_from_image(uploaded_file)
             similarity_scores = get_meals_from_response(json.loads(response).get("ingredients", []))
-            # st.write(meals)
-            # response_data = json.loads(response)
-            # ingredients = response_data.get("ingredients", [])
-            # st.write("Extracted Ingredients:", ingredients)
+            st.session_state.similarity_scores = similarity_scores  # Save to session state
             st.write("Similarity Scores:", similarity_scores)
-            st.session_state.similarity_scores = similarity_scores
+        
         if response.strip():
-            st.write("Extracted Ingredients", json.loads(response), height=200)
+            st.write("Extracted Ingredients", json.loads(response))
         else:
             st.write("No text found in the image.")
 
 def top_recipe_page():
     st.subheader("Top 5 Recipe")
     st.markdown("This page displays recipes along with details including image, meal name, explanation, instructions, and YouTube link.")
-    st.write("Similarity Scores:", st.session_state.similarity_scores)
+    
     goal = st.session_state.selected_goal
-    recipes = find_matching_recipes([st.session_state.selected_goal]).get(goal)
-    # Load the JSON file from the data folder
-    # try:
-    #     with open("data/small_data.json", "r") as f:
-    #         recipes = json.load(f)
-    # except Exception as e:
-    #     st.error(f"Error loading data/small_data.json: {e}")
-    #     return
+    # Only try to get recipes if we have a goal selected
+    if goal:
+        # Pass similarity scores to find_matching_recipes if they exist
+        recipes = find_matching_recipes(
+            [goal], 
+            st.session_state.similarity_scores if st.session_state.similarity_scores else None
+        ).get(goal)
 
-    # Loop over each recipe in the JSON file and display the details
-    for rec in recipes:
-        st.markdown("---")
-        # Header with recipe name
-        recipe_name = rec.get("strMeal", "No Recipe Name")
-        st.header(recipe_name)
-        
+        if recipes:
+            for rec in recipes:
+                st.markdown("---")
+                recipe_name = rec.get("strMeal", "No Recipe Name")
+                st.header(recipe_name)
 
-        # Create two columns: left for image, right for details
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            image_url = rec.get("strMealThumb")
-            if image_url:
-                st.image(image_url, width=400)
-            else:
-                st.text("No image available.")
-        ingredients_dict = rec.get('ingredients', 'N/A')
-        ingredients_list = []
-        for k,v in ingredients_dict.items():
-            ingredients_list.append({"Ingredient": k, "Quantity": v})
-        df_ingredients = pd.DataFrame(ingredients_list)
-        df_ingredients.index += 1 
-        
-        with col2:
-            with st.expander("Show Details"):
-                st.markdown(f"**Health Goal:** {goal}")
-                st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
-                st.markdown(f"**Explanation:** {rec.get('reason', 'N/A')}")
+                col1, col2 = st.columns([1, 2])
+                with col1:
+                    image_url = rec.get("strMealThumb")
+                    if image_url:
+                        st.image(image_url, width=400)
+                    else:
+                        st.text("No image available.")
                 
-                st.dataframe(df_ingredients, use_container_width=True)
-
-                st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
-                # st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
-                # st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
-                st.markdown("**Instructions:**")
-                st.write(rec.get("strInstructions", "N/A"))
-                # youtube_link = rec.get("strYoutube")
-                # if youtube_link:
-                #     st.markdown(f"**YouTube Link:** {youtube_link}")
-                #     st.video(youtube_link)
-                # else:
-                #     st.text("No YouTube link available.")
+                ingredients_dict = rec.get('ingredients', 'N/A')
+                ingredients_list = []
+                for k,v in ingredients_dict.items():
+                    ingredients_list.append({"Ingredient": k, "Quantity": v})
+                df_ingredients = pd.DataFrame(ingredients_list)
+                df_ingredients.index += 1 
+                
+                with col2:
+                    with st.expander("Show Details"):
+                        st.markdown(f"**Health Goal:** {goal}")
+                        st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
+                        st.markdown(f"**Explanation:** {rec.get('reason', 'N/A')}")
+                        st.dataframe(df_ingredients, use_container_width=True)
+                        st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
+                        st.markdown("**Instructions:**")
+                        st.write(rec.get("strInstructions", "N/A"))
 
     st.markdown("---")
-    st.button("Back to Health Goals", key="back_to_goals")
+    if st.button("Back to Health Goals"):
+        st.session_state.clicked = False
     st.success("End of recipes.")
 
 def main():
-
-    # Initialize session state
     initialize_session_state()
+    
     with st.container():
         st.sidebar.title("Navigation")
         selected_page = st.sidebar.radio(
@@ -222,9 +203,11 @@ def main():
         st.sidebar.write("**User:** John Doe")
         st.sidebar.write("**Version:** 0.0.1")
         if st.sidebar.button("Logout"):
+            # Clear all session state on logout
+            st.session_state.clear()
             st.sidebar.write("You have logged out.")
 
-        st.title("Kirby.AI",)
+        st.title("Kirby.AI")
         st.markdown("""
             Welcome to **Kirby.AI**: The best foody recommender in the market.
         """)
@@ -238,4 +221,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
