@@ -90,16 +90,51 @@ def health_goal_page():
             st.write("No text found in the image.")
 
 def top_recipe_page():
-    st.subheader("Top 5 Recipes")
-    
-    # Display selected health goal information
-    if st.session_state.selected_goal:
-        st.write("**Selected Health Goal:**", st.session_state.selected_goal)
-        st.write("**Goal Description:**", st.session_state.goal_description)
-        
-        # Add a button to go back to health goals
-        if st.button("Choose Different Goal"):
-            st.session_state.clicked = False
+    st.subheader("Top 5 Recipe")
+    st.markdown("This page displays recipes along with details including image, meal name, explanation, instructions, and YouTube link.")
+
+    # Load the JSON file from the data folder
+    try:
+        with open("data/small_data.json", "r") as f:
+            recipes = json.load(f)
+    except Exception as e:
+        st.error(f"Error loading data/small_data.json: {e}")
+        return
+
+    # Loop over each recipe in the JSON file and display the details
+    for rec in recipes:
+        st.markdown("---")
+        # Header with recipe name
+        recipe_name = rec.get("strMeal", "No Recipe Name")
+        st.header(recipe_name)
+        with st.expander("Show Details"):
+
+            # Create two columns: left for image, right for details
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                image_url = rec.get("strMealThumb")
+                if image_url:
+                    st.image(image_url, use_container_width=True)
+                else:
+                    st.text("No image available.")
+
+            with col2:
+                st.markdown(f"**Primary:** {rec.get('primary', 'N/A')}")
+                st.markdown(f"**Confidence:** {rec.get('confidence', 'N/A')}")
+                st.markdown(f"**Explanation:** {rec.get('exp', 'N/A')}")
+                st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
+                st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
+                st.markdown("**Instructions:**")
+                st.write(rec.get("strInstructions", "N/A"))
+                youtube_link = rec.get("strYoutube")
+                if youtube_link:
+                    st.markdown(f"**YouTube Link:** {youtube_link}")
+                    st.video(youtube_link)
+                else:
+                    st.text("No YouTube link available.")
+
+    st.markdown("---")
+    st.success("End of recipes.")
 
 def main():
 
@@ -132,3 +167,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
