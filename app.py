@@ -101,21 +101,10 @@ def health_goal_page():
         st.image(image, caption='Uploaded Image.', use_container_width=True)
         st.write("")
         with st.spinner("Extracting text..."):
-            
-            @st.cache_data
-            def load_ingredients():
-                return pd.read_json('ingredients.json')
-            
-            @st.cache_data
-            def load_meals():
-                return pd.read_json('big_data.json')
-            
-            client = genai.Client(api_key="")
+            client = genai.Client(api_key="AIzaSyBhe-2qFN7deLw7qZ4IT1QQSj4tiKnUNXs")
             text = pytesseract.image_to_string(image)
-            ingredients = load_ingredients()
-            meals = load_meals()
             response = client.models.generate_content(
-                model="gemini-2.0-flash", contents=[text, ingredients.to_string(), meals.to_string(), "Obtain the food items from the image then cross reference with the ingredients list and filter only the food items that exist in the ingredients list and get the ingredient list name. After that, obtain the strMeal's that matches the ingredients best and return it. Then returned object should just contain the strMeals's + included ingredients + excluded ingredients and nothing else. If none then say none."]
+                model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
             )
             print(response.text)
         if response.text.strip():
@@ -133,3 +122,7 @@ def top_recipe_page():
 
 if __name__ == "__main__":
     main()
+
+
+
+#  "Obtain the food items from the image then cross reference with the ingredients list and filter only the food items that exist in the ingredients list and get the ingredient list name. After that, obtain the strMeal's that matches the ingredients best and return it. Then returned object should just contain the strMeals's + included ingredients + excluded ingredients and nothing else. If none then say none."
