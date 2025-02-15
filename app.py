@@ -33,7 +33,6 @@ st.markdown(
     section[data-testid="stSidebar"] {
 
         background-color: #bab6b6;
-        background-color: black;
     }
     section[data-testid="stSidebar"] .css-1d391kg {
         color: black;
@@ -127,6 +126,7 @@ def main():
     # Page routing based on session state
     if st.session_state.clicked or selected_page == "Top Recipes":
         top_recipe_page()
+        st.session_state.clicked = False
     else:
         health_goal_page()
 
