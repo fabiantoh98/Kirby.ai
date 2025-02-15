@@ -126,5 +126,5 @@ def get_meals_from_response(ingredients):
     sorted_similarity_scores = sorted(similarity_scores.items(), key=lambda x: x[1]["similarity_score"], reverse=True)
 
     # return {"meals": extracted_meals, "ingredients": ingredients, "similarity_scores": sorted_similarity_scores}
-    return {"similarity_scores": sorted_similarity_scores}
+    return {"similarity_scores": sorted_similarity_scores[:5]}
 

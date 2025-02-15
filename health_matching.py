@@ -1,8 +1,7 @@
 from typing import List, Dict
 import json
 
-def find_matching_recipes(health_options: List[str], similarity_score):
-    print(similarity_score)
+def find_matching_recipes(health_options: List[str]):
     result_dict = {}
     for option in health_options:
         health_option_str = option.lower().replace(" ", "-")
