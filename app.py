@@ -58,6 +58,7 @@ top_5_recipe = {
 }
 
 def main():
+    
     st.sidebar.title("Navigation")
     selected_page = st.sidebar.radio(
         "Go to",
@@ -75,11 +76,20 @@ def main():
         Welcome to the **Kirby.AI**: The best foody recommender in the market.
         """
     )
+    
+    # set all session state to be false
+    if 'clicked' not in st.session_state:
+        st.session_state.clicked = False
 
-    if selected_page == "Health Goals":
+    if st.session_state.clicked:
+        # Upon clicking got to top receipe page
+        top_recipe_page()
+    else:
+        #Default page 
         health_goal_page()
-    elif selected_page == "Top Recipes":
-        top_recipe_page() 
+
+def go_top_receipe_page():
+    st.session_state.clicked = True
 
 def health_goal_page():
     st.subheader("Select Your Health Goal: ")
@@ -87,9 +97,8 @@ def health_goal_page():
     for goal, description in health_goals.items():
         with st.expander(goal):
             st.write(description)
-            if st.button(goal):
-                top_recipe_page()
-
+            st.button(goal, on_click=go_top_receipe_page)
+                
 
 
     # uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
@@ -113,7 +122,7 @@ def health_goal_page():
     #         st.write("No text found in the image.")
 
 def top_recipe_page():
-    st.subheader("Display")
+    st.subheader("Top 5 Receipe")
 
 
 if __name__ == "__main__":
