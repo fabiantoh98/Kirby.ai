@@ -101,7 +101,7 @@ def health_goal_page():
         st.image(image, caption='Uploaded Image.', use_container_width=True)
         st.write("")
         with st.spinner("Extracting text..."):
-            client = genai.Client(api_key="AIzaSyBhe-2qFN7deLw7qZ4IT1QQSj4tiKnUNXs")
+            client = genai.Client(api_key="")
             text = pytesseract.image_to_string(image)
             response = client.models.generate_content(
                 model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
