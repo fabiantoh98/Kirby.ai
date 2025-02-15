@@ -44,3 +44,4 @@ watchdog==6.0.0
 
 pytesseract
 google-genai
+python-dotenv
