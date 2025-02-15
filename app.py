@@ -129,7 +129,7 @@ def health_goal_page():
             st.write("""... more to come.""")
 
     # Image upload section
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Choose a receipt...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         st.balloons()
         image = np.array(Image.open(uploaded_file))
@@ -172,6 +172,8 @@ def top_recipe_page():
         st.info("See checklists for ingredients you have and don't have from your photo.")
     
     goal = st.session_state.selected_goal
+    st.markdown(f'''
+        Top 5 Recipes for _{goal}_:''')
     recipes = find_matching_recipes([st.session_state.selected_goal]).get(goal)
 
     # Load the JSON file from the data folder
@@ -184,7 +186,6 @@ def top_recipe_page():
 
     # Loop over each recipe in the JSON file and display the details
     for rec in recipes:
-        st.markdown("---")
         # Header with recipe name
         recipe_name = rec.get("strMeal", "No Recipe Name")
         st.header(recipe_name)
@@ -216,16 +217,16 @@ def top_recipe_page():
                 st.dataframe(df_ingredients, use_container_width=True)
 
                 st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
-                # st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
-                # st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
+                st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
+                st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
                 st.markdown("**Instructions:**")
                 st.write(rec.get("strInstructions", "N/A"))
-                # youtube_link = rec.get("strYoutube")
-                # if youtube_link:
-                #     st.markdown(f"**YouTube Link:** {youtube_link}")
-                #     st.video(youtube_link)
-                # else:
-                #     st.text("No YouTube link available.")
+                youtube_link = rec.get("strYoutube")
+                if youtube_link:
+                    st.markdown(f"**YouTube Link:** {youtube_link}")
+                    st.video(youtube_link)
+                else:
+                    st.text("No YouTube link available.")
 
     st.markdown("---")
     st.button("Back to Health Goals", key="back_to_goals")
@@ -267,7 +268,10 @@ def main():
 
         st.title("Kirby.AI")
         st.markdown("""
-            Welcome to **Kirby.AI**: The best foody recommender in the market.
+            # Kirby.AI ![alt text](data/kirchin.png "Kirchin") #
+        """)
+        st.markdown("""
+            #### Welcome to **Kirby.AI**: The recipe recommender that makes your grandma happy :balloon: ####
         """)
 
                 

@@ -24,7 +24,6 @@ def extract_ingredients_from_image(image_path):
         model="gemini-2.0-flash", 
         contents=[Image.open(image_path), "What foods are in here, give me a list in this format"]
     )
-    print(response.text)
     return response.text
     
 @st.cache_data # NOTE: Cache the data so it doesn't need to be reloaded every time the page is refreshed. May change ltr
