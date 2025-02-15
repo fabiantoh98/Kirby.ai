@@ -4,7 +4,7 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 from get_openai_response import get_recipes_from_image
-
+import json
 
 # ----- PAGE CONFIG & STYLES -----
 st.set_page_config(
