@@ -102,11 +102,14 @@ def initialize_session_state():
         st.session_state.selected_goal = None
     if 'goal_description' not in st.session_state:
         st.session_state.goal_description = None
+    if 'similarity_scores' not in st.session_state:
+        st.session_state.similarity_scores = None
 
-def go_to_recipe_page(goal):
+def go_to_recipe_page(goal, similarity_scores):
     st.session_state.clicked = True
     st.session_state.selected_goal = goal
     st.session_state.goal_description = health_goals[goal]
+    st.session_state.similarity_scores = similarity_scores
 
 def health_goal_page():
     with st.container():
@@ -118,7 +121,7 @@ def health_goal_page():
                     print(goal)
                     st.write(description)
                     st.button(f"Select {goal}", key=f"btn_{goal}", 
-                            on_click=go_to_recipe_page, args=(goal,))
+                            on_click=go_to_recipe_page, args=(goal,st.session_state.similarity_scores,))
         with col3.expander(" ... "):
             st.write("""... more to come.""")
 
@@ -127,7 +130,7 @@ def health_goal_page():
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         image = np.array(Image.open(uploaded_file))
-        st.image(image, caption='Uploaded Image.', use_container_width=True)
+        st.image(image, caption='Uploaded Image.', use_container_width=False)
         st.write("")
         with st.spinner("Extracting text..."):
             response = get_recipes_from_image(uploaded_file)
@@ -137,6 +140,7 @@ def health_goal_page():
             # ingredients = response_data.get("ingredients", [])
             # st.write("Extracted Ingredients:", ingredients)
             st.write("Similarity Scores:", similarity_scores)
+            st.session_state.similarity_scores = similarity_scores
         if response.strip():
             st.write("Extracted Ingredients", json.loads(response), height=200)
         else:
@@ -145,6 +149,7 @@ def health_goal_page():
 def top_recipe_page():
     st.subheader("Top 5 Recipe")
     st.markdown("This page displays recipes along with details including image, meal name, explanation, instructions, and YouTube link.")
+    st.write("Similarity Scores:", st.session_state.similarity_scores)
     goal = st.session_state.selected_goal
     recipes = find_matching_recipes([st.session_state.selected_goal]).get(goal)
     # Load the JSON file from the data folder
@@ -199,6 +204,7 @@ def top_recipe_page():
                 #     st.text("No YouTube link available.")
 
     st.markdown("---")
+    st.button("Back to Health Goals", key="back_to_goals")
     st.success("End of recipes.")
 
 def main():
