@@ -3,7 +3,7 @@ import streamlit as st
 from PIL import Image
 import pandas as pd
 import numpy as np
-from get_openai_response import get_recipes_from_image
+from get_openai_response import get_recipes_from_image, get_meals_from_response
 import json
 
 # ----- PAGE CONFIG & STYLES -----
@@ -84,9 +84,14 @@ def health_goal_page():
         st.write("")
         with st.spinner("Extracting text..."):
             response = get_recipes_from_image(image)
-            st.write(get_meals_from_response(response))
+            meals = get_meals_from_response(json.loads(response).get("ingredients", []))
+            # st.write(meals)
+            # response_data = json.loads(response)
+            # ingredients = response_data.get("ingredients", [])
+            # st.write("Extracted Ingredients:", ingredients)
+            st.write("Extracted Meals:", meals)
         if response.strip():
-            st.text_area("Extracted Text", response, height=200)
+            st.write("Extracted Text", json.loads(response), height=200)
         else:
             st.write("No text found in the image.")
 

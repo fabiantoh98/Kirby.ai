@@ -79,13 +79,32 @@ def get_recipes_from_image(image):
     )
     return response.choices[0].message.content
 
-def get_meals_from_response(response):
-    ingredients = response["ingredients"]
+def get_meals_from_response(ingredients):
+    #convert ingredients to lowercase
+    ingredients = [ingredient.lower() for ingredient in ingredients]
     meals = pd.read_json('data/big_data.json')
-    extracted_meal_ingredients = []
-    for i in range(1):
+    extracted_meals = []
+    for i in range(50):
+        extracted_meal_ingredients = []
         meal = meals.iloc[i, 0][0]
         for i in range(20):
             # print(meal[f'strIngredient{i+1}'].lower())
-            extracted_meal_ingredients.append(meal[f'strIngredient{i+1}'].lower())
-    return {"meals": extracted_meal_ingredients, "ingredients": ingredients}
+            extracted_meal_ingredients.append(meal[f'strIngredient{i+1}'].lower() if meal[f'strIngredient{i+1}'] else "")
+        extracted_meals.append({"id": meal["idMeal"], "ingredients": extracted_meal_ingredients})
+    similarity_scores = {}
+    for meal_ingredients in extracted_meals:
+        # intersection = set()
+        # for ingredient in ingredients:
+        #     for meal_ingredient in meal_ingredients:
+        #         if ingredient in meal_ingredient or meal_ingredient in ingredient:
+        #             intersection.add(meal_ingredient)
+        intersection = set(meal_ingredients['ingredients']).intersection(set(ingredients))
+        similarity_scores[meal_ingredients['id']] = {"intersection": list(intersection), "exception": list(set(ingredients) - intersection), "similarity_score": len(intersection) / len(ingredients), "total_overlap_amount": len(intersection)}
+        
+    
+    # sort the similarity scores
+    sorted_similarity_scores = sorted(similarity_scores.items(), key=lambda x: x[1]["similarity_score"], reverse=True)
+
+    # return {"meals": extracted_meals, "ingredients": ingredients, "similarity_scores": sorted_similarity_scores}
+    return {"similarity_scores": sorted_similarity_scores[:5]}
+
