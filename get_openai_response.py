@@ -3,7 +3,10 @@ import pytesseract
 import pandas as pd
 import os
 
+from dotenv import load_dotenv
 
+load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 def load_ingredients():
     return pd.read_json("ingredients.json").to_string()
@@ -13,7 +16,7 @@ def get_recipes_from_image(image):
     text = pytesseract.image_to_string(image)
     ingredients = load_ingredients()
     client = OpenAI(
-        api_key=""
+        api_key = openai_api_key
     )
     prompt = f"""
     You are an AI assistant helping a user extract ingredients from an image and cross-reference them with a given list of ingredients. 
