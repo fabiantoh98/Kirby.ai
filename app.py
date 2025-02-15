@@ -13,29 +13,70 @@ st.set_page_config(
     layout="wide"
 )
 # Inject a bit of CSS to style metric cards, titles, etc.
+
 st.markdown(
     """
     <style>
-    .stContainer {
-        background-color: #F9F9F9;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
+    /* Primary Colors */
+    :root {
+    --primary-color-white: #FFFFFF;
+    --primary-color-black: #000000;
     }
-    .metric-container {
-        background-color: #fff;
-        border-radius: 6px;
-        padding: 10px 15px;
-        text-align: center;
-        box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-    }
-    /* Sidebar style tweaks */
-    section[data-testid="stSidebar"] {
 
-        background-color: #bab6b6;
+    /* Secondary Colors */
+    :root {
+    --secondary-color-spearmint: #63D297;
+    --secondary-color-kirby-pink: #D74894;
     }
-    section[data-testid="stSidebar"] .css-1d391kg {
-        color: black;
+
+    /* Accent Colors */
+    :root {
+    --accent-color-dark-grey: #A9A9A9;
+    --accent-color-light-grey: #D4D4D4;
+    }
+
+    .stApp {
+    background-color: var(--primary-color-white);
+    color: var(--primary-color-black);
+    }
+
+    .stButton {
+    background-color: RGBA(0,0,0,0);
+    color: var(--primary-color-black);
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    }
+
+    .stButton > button {
+    background-color: var(--accent-color-light-grey);
+    }
+
+    .stTextInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--accent-color-light-grey);
+    border-radius: 5px;
+    box-sizing: border-box;
+    }
+
+    .stSelectbox {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--accent-color-light-grey);
+    border-radius: 5px;
+    box-sizing: border-box;
+    }
+
+    .stRadio {
+    margin-bottom: 20px;
+    }
+
+    .stCheckbox {
+    margin-bottom: 20px;
     }
     </style>
     """,
@@ -43,11 +84,11 @@ st.markdown(
 )
 
 health_goals = {
-    "Boost Metabolism": "Optimize your metabolism and support healthy weight management with metabolism-boosting dishes.",
     "Boost Energy": "Recharge your body with nutrient-rich meals designed to enhance vitality and combat fatigue.",
+    "Boost Metabolism": "Optimize your metabolism and support healthy weight management.",
     "Enhance Focus": "Sharpen your mental clarity and concentration with brain-boosting ingredients.",
     "Improve Immunity": "Strengthen your body's natural defenses with immune-boosting ingredients and nourishing recipes.",
-    "Improve Mobility": "Enhance joint flexibility and bone health with meals designed to support overall mobility.",
+    "Improve Mobility": "Enhance your joint flexibility and bone health with meals designed to support overall mobility.",
     "Detox": "Assist your body's natural detoxification processes with cleansing and purifying foods.",
     "Enhance Mood": "Elevate your mood and promote emotional well-being with mood-enhancing ingredients.",
     "Aid Sleep Quality": "Improve your sleep quality and ensure restful nights with calming and sleep-inducing ingredients."
@@ -67,13 +108,17 @@ def go_to_recipe_page(goal):
     st.session_state.goal_description = health_goals[goal]
 
 def health_goal_page():
-    st.subheader("Select Your Health Goal:")
-    
-    for goal, description in health_goals.items():
-            with st.expander(goal):
-                st.write(description)
-                st.button(f"Select {goal}", key=f"btn_{goal}", 
-                         on_click=go_to_recipe_page, args=(goal,))
+    with st.container():
+        st.subheader("Select Your Health Goal:")
+        # Create three columns
+        col1, col2, col3 = st.columns(3)
+        for i, (goal, description) in enumerate(health_goals.items()):
+            with eval(f"col{i % 3 + 1}").expander(goal):
+                    st.write(description)
+                    st.button(f"Select {goal}", key=f"btn_{goal}", 
+                            on_click=go_to_recipe_page, args=(goal,))
+        with col3.expander(" ... "):
+            st.write("""... more to come.""")
 
 
     # Image upload section
@@ -113,18 +158,19 @@ def top_recipe_page():
         # Header with recipe name
         recipe_name = rec.get("strMeal", "No Recipe Name")
         st.header(recipe_name)
-        with st.expander("Show Details"):
+        
 
-            # Create two columns: left for image, right for details
-            col1, col2 = st.columns([1, 2])
-            with col1:
-                image_url = rec.get("strMealThumb")
-                if image_url:
-                    st.image(image_url, use_container_width=True)
-                else:
-                    st.text("No image available.")
-
-            with col2:
+        # Create two columns: left for image, right for details
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            image_url = rec.get("strMealThumb")
+            if image_url:
+                st.image(image_url, width=400)
+            else:
+                st.text("No image available.")
+        
+        with col2:
+            with st.expander("Show Details"):
                 st.markdown(f"**Primary:** {rec.get('primary', 'N/A')}")
                 st.markdown(f"**Confidence:** {rec.get('confidence', 'N/A')}")
                 st.markdown(f"**Explanation:** {rec.get('exp', 'N/A')}")
@@ -146,30 +192,30 @@ def main():
 
     # Initialize session state
     initialize_session_state()
-    
-    st.sidebar.title("Navigation")
-    selected_page = st.sidebar.radio(
-        "Go to",
-        ["Health Goals", "Top Recipes"]
-    )
-    
-    st.sidebar.markdown("---")
-    st.sidebar.write("**User:** John Doe")
-    st.sidebar.write("**Version:** 0.0.1")
-    if st.sidebar.button("Logout"):
-        st.sidebar.write("You have logged out.")
+    with st.container():
+        st.sidebar.title("Navigation")
+        selected_page = st.sidebar.radio(
+            "Go to",
+            ["Health Goals", "Top Recipes"]
+        )
+        
+        st.sidebar.markdown("---")
+        st.sidebar.write("**User:** John Doe")
+        st.sidebar.write("**Version:** 0.0.1")
+        if st.sidebar.button("Logout"):
+            st.sidebar.write("You have logged out.")
 
-    st.title("Kirby.AI")
-    st.markdown("""
-        Welcome to **Kirby.AI**: The best foody recommender in the market.
-    """)
-    
-    # Page routing based on session state
-    if st.session_state.clicked or selected_page == "Top Recipes":
-        top_recipe_page()
-        st.session_state.clicked = False
-    else:
-        health_goal_page()
+        st.title("Kirby.AI",)
+        st.markdown("""
+            Welcome to **Kirby.AI**: The best foody recommender in the market.
+        """)
+        
+        # Page routing based on session state
+        if st.session_state.clicked or selected_page == "Top Recipes":
+            top_recipe_page()
+            st.session_state.clicked = False
+        else:
+            health_goal_page()
 
 if __name__ == "__main__":
     main()
