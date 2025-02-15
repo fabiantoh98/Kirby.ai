@@ -27,10 +27,10 @@ st.markdown(
     }
     /* Sidebar style tweaks */
     section[data-testid="stSidebar"] {
-        background-color: #F0F4F8;
+        background-color: black;
     }
     section[data-testid="stSidebar"] .css-1d391kg {
-        color: #ffffff;
+        color: black;
     }
     </style>
     """,
@@ -47,7 +47,7 @@ def main():
     st.sidebar.write("**Version:** 0.0.1")
     if st.sidebar.button("Logout"):
         st.sidebar.write("You have logged out.")
-    st.title("Smart City Insights App")
+    st.title("Kirby.AI")
     st.markdown(
         """
         Welcome to the **Kirby.AI**: THe best foody recommender in the market.
