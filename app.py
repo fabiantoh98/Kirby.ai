@@ -63,29 +63,27 @@ def main():
     st.sidebar.title("Navigation")
     selected_page = st.sidebar.radio(
         "Go to",
-        ["Page 1", "Page 2"]
+        ["Health Goals", "Top Recipes"]
     )
     st.sidebar.markdown("---")
     st.sidebar.write("**User:** John Doe")
     st.sidebar.write("**Version:** 0.0.1")
     if st.sidebar.button("Logout"):
         st.sidebar.write("You have logged out.")
-<<<<<<< HEAD
     st.title("Kitchen Co-pilot Medicinal Cooking Recipes")
-=======
-    st.title("Kirby.AI")
->>>>>>> 549ccdaaf52c1aa8d63644e7f9db7f96fba61b31
     st.markdown(
         """
         Welcome to the **Kirby.AI**: The best foody recommender in the market.
         """
     )
-    if selected_page == "Page 1":
+    if selected_page == "Health Goals":
         health_goal_page()
-    elif selected_page == "Page 2":
+    elif selected_page == "Top Recipes":
         top_recipe_page()
 
 def health_goal_page():
+    st.subheader("Food Recommender")
+
     st.subheader("Select Your Health Goal: ")
     # Load each of the options
     for goal, description in health_goals.items():
@@ -93,9 +91,9 @@ def health_goal_page():
             st.write(description)
             if st.button(goal):
                 top_recipe_page()
-        page_2()
-def page_1():
-    st.subheader("Food Recommender")
+
+
+
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
