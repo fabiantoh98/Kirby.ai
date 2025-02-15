@@ -90,33 +90,25 @@ def health_goal_page():
 
 
 
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    # uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-    if uploaded_file is not None:
-        image = np.array(Image.open(uploaded_file))
-        st.image(image, caption='Uploaded Image.', use_container_width=True)
-        st.write("")
-        with st.spinner("Extracting text..."):
-            client = genai.Client(api_key="")
-            try:
-                text = pytesseract.image_to_string(image)
-            except Exception as e:
-                text = ""
-
-            try:    
-                response = client.models.generate_content(
-                    model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
-                )
-            except Exception as e:
-                response = {"text": ""}
-            
-            print(response.text)
-        if response.text.strip():
-            # ingredients = load_ingredients()
-            # st.write(ingredients)
-            st.text_area("Extracted Text", response.text, height=200)
-        else:
-            st.write("No text found in the image.")
+    # if uploaded_file is not None:
+    #     image = np.array(Image.open(uploaded_file))
+    #     st.image(image, caption='Uploaded Image.', use_container_width=True)
+    #     st.write("")
+    #     with st.spinner("Extracting text..."):
+    #         client = genai.Client(api_key="")
+    #         text = pytesseract.image_to_string(image)
+    #         response = client.models.generate_content(
+    #             model="gemini-2.0-flash", contents=[text, "Give me the ingredients. Output should be an ONLY array of ingredient texts."]
+    #         )
+    #         print(response.text)
+    #     if response.text.strip():
+    #         # ingredients = load_ingredients()
+    #         # st.write(ingredients)
+    #         st.text_area("Extracted Text", response.text, height=200)
+    #     else:
+    #         st.write("No text found in the image.")
 
 
     
