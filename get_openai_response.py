@@ -75,3 +75,14 @@ def get_recipes_from_image(image):
     presence_penalty=0
     )
     return response.choices[0].message.content
+
+def get_meals_from_response(response):
+    ingredients = response["ingredients"]
+    meals = pd.read_json('data/big_data.json')
+    extracted_meal_ingredients = []
+    for i in range(1):
+        meal = meals.iloc[i, 0][0]
+        for i in range(20):
+            # print(meal[f'strIngredient{i+1}'].lower())
+            extracted_meal_ingredients.append(meal[f'strIngredient{i+1}'].lower())
+    return {"meals": extracted_meal_ingredients, "ingredients": ingredients}
