@@ -27,10 +27,14 @@ st.markdown(
     }
     /* Sidebar style tweaks */
     section[data-testid="stSidebar"] {
+<<<<<<< HEAD
         background-color: #bab6b6;
+=======
+        background-color: black;
+>>>>>>> 549ccdaaf52c1aa8d63644e7f9db7f96fba61b31
     }
     section[data-testid="stSidebar"] .css-1d391kg {
-        color: #ffffff;
+        color: black;
     }
     </style>
     """,
@@ -62,7 +66,11 @@ def main():
     st.sidebar.write("**Version:** 0.0.1")
     if st.sidebar.button("Logout"):
         st.sidebar.write("You have logged out.")
+<<<<<<< HEAD
     st.title("Kitchen Co-pilot Medicinal Cooking Recipes")
+=======
+    st.title("Kirby.AI")
+>>>>>>> 549ccdaaf52c1aa8d63644e7f9db7f96fba61b31
     st.markdown(
         """
         Welcome to the **Kirby.AI**: The best foody recommender in the market.
