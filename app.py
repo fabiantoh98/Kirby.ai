@@ -104,6 +104,8 @@ def initialize_session_state():
         st.session_state.goal_description = None
     if 'similarity_scores' not in st.session_state:
         st.session_state.similarity_scores = None
+    if 'ingredient_list' not in st.session_state:
+        st.session_state.ingredient_list = None
 
 def go_to_recipe_page(goal):
     st.session_state.clicked = True
@@ -132,6 +134,7 @@ def health_goal_page():
         st.write("")
         with st.spinner("Extracting text..."):
             response = get_recipes_from_image(uploaded_file)
+            st.session_state.ingredient_list = response
             similarity_scores = get_meals_from_response(json.loads(response).get("ingredients", []))
             print("Setting similarity scores:", similarity_scores)
             st.session_state['similarity_scores'] = similarity_scores
@@ -177,8 +180,10 @@ def top_recipe_page():
                 st.text("No image available.")
         ingredients_dict = rec.get('ingredients', 'N/A')
         ingredients_list = []
+
+        reciept_ingredient_list = st.session_state.ingredient_list.lower()
         for k,v in ingredients_dict.items():
-            ingredients_list.append({"Ingredient": k, "Quantity": v})
+            ingredients_list.append({"Ingredient": k, "Quantity": v, "checklist": k.lower() in reciept_ingredient_list})
         df_ingredients = pd.DataFrame(ingredients_list)
         df_ingredients.index += 1 
         
