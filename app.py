@@ -167,7 +167,9 @@ def top_recipe_page():
     print("Entering top_recipe_page with similarity scores:", st.session_state.similarity_scores)
     st.subheader("Top 5 Recipe")
     st.markdown("This page displays *recipes* along with details including images, meal names, explanatios, instructions, and YouTube links.")
-    st.write("Current Similarity Scores:", st.session_state.similarity_scores)
+    # st.write("Current Similarity Scores:", st.session_state.similarity_scores)
+    if st.session_state.similarity_scores is not None:
+        st.info("See checklists for ingredients you have and don't have from your photo.")
     
     goal = st.session_state.selected_goal
     recipes = find_matching_recipes([st.session_state.selected_goal]).get(goal)
@@ -199,7 +201,7 @@ def top_recipe_page():
         ingredients_dict = rec.get('ingredients', 'N/A')
         ingredients_list = []
 
-        reciept_ingredient_list = st.session_state.ingredient_list.lower()
+        reciept_ingredient_list = st.session_state.ingredient_list.lower() if st.session_state.ingredient_list else []
         for k,v in ingredients_dict.items():
             ingredients_list.append({"Ingredient": k, "Quantity": v, "checklist": k.lower() in reciept_ingredient_list})
         df_ingredients = pd.DataFrame(ingredients_list)
