@@ -31,7 +31,11 @@ st.markdown(
     }
     /* Sidebar style tweaks */
     section[data-testid="stSidebar"] {
+<<<<<<< HEAD
+        background-color: #bab6b6;
+=======
         background-color: black;
+>>>>>>> 549ccdaaf52c1aa8d63644e7f9db7f96fba61b31
     }
     section[data-testid="stSidebar"] .css-1d391kg {
         color: black;
@@ -40,6 +44,21 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+health_goals = {
+    "Reduce Heatiness" : '''
+        A therapeutic approach aimed to remove excessive heat within the body.
+        Some common causes of heatiness includes exposure to hot weather, inflammatory conditions,
+        emotional imbalances (stress, anger) and overconsumption of spicy and warming foods.
+        ''',
+    "Improve Immunity" : "to improve your immunity"
+}
+
+top_5_recipe = {
+    "Chickem Rice": "",
+    "Ceasar Salad": ""
+}
+
 def main():
     st.sidebar.title("Navigation")
     selected_page = st.sidebar.radio(
@@ -51,15 +70,29 @@ def main():
     st.sidebar.write("**Version:** 0.0.1")
     if st.sidebar.button("Logout"):
         st.sidebar.write("You have logged out.")
+<<<<<<< HEAD
+    st.title("Kitchen Co-pilot Medicinal Cooking Recipes")
+=======
     st.title("Kirby.AI")
+>>>>>>> 549ccdaaf52c1aa8d63644e7f9db7f96fba61b31
     st.markdown(
         """
-        Welcome to the **Kirby.AI**: THe best foody recommender in the market.
+        Welcome to the **Kirby.AI**: The best foody recommender in the market.
         """
     )
     if selected_page == "Page 1":
-        page_1()
+        health_goal_page()
     elif selected_page == "Page 2":
+        top_recipe_page()
+
+def health_goal_page():
+    st.subheader("Select Your Health Goal: ")
+    # Load each of the options
+    for goal, description in health_goals.items():
+        with st.expander(goal):
+            st.write(description)
+            if st.button(goal):
+                top_recipe_page()
         page_2()
 def page_1():
     st.subheader("Food Recommender")
@@ -96,7 +129,7 @@ def page_1():
 
 
     
-def page_2():
+def top_recipe_page():
     st.subheader("Display")
 
 
