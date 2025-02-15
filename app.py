@@ -1,4 +1,6 @@
 import streamlit as st
+import pytesseract
+from PIL import Image
 
 import pandas as pd
 import numpy as np
@@ -57,9 +59,21 @@ def main():
         page_1()
     elif selected_page == "Page 2":
         page_2()
-
 def page_1():
     st.subheader("Food Recommender")
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    if uploaded_file is not None:
+        image = np.array(Image.open(uploaded_file))
+        st.image(image, caption='Uploaded Image.', use_container_width=True)
+        st.write("")
+        with st.spinner("Extracting text..."):
+            text = pytesseract.image_to_string(image)
+        if text.strip():
+            st.text_area("Extracted Text", text, height=200)
+        else:
+            st.write("No text found in the image.")
+
+
     
 def page_2():
     st.subheader("Display")
