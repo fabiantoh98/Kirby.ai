@@ -35,5 +35,3 @@ def find_matching_recipes(health_options: List[str]):
                 meal_details.append(details)
         result_dict[option] = meal_details
     return result_dict
-
-print(json.dumps(find_matching_recipes(["Detox", "Improve Mobility"])))
