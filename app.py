@@ -110,6 +110,7 @@ def initialize_session_state():
         st.session_state.ingredient_list = None
 
 def go_to_recipe_page(goal):
+    st.balloons()
     st.session_state.clicked = True
     st.session_state.selected_goal = goal
     st.session_state.goal_description = health_goals[goal]
