@@ -52,6 +52,11 @@ st.markdown(
     cursor: pointer;
     }
 
+    .stButton:hover {
+    color: var(--primary-color-black);
+    font-weight: bold;
+    }
+    
     .stButton > button {
     background-color: var(--accent-color-light-grey);
     }
@@ -81,6 +86,7 @@ st.markdown(
     .stCheckbox {
     margin-bottom: 20px;
     }
+    
     </style>
     """,
     unsafe_allow_html=True
@@ -166,6 +172,7 @@ def health_goal_page():
 
 def top_recipe_page():
     print("Entering top_recipe_page with similarity scores:", st.session_state.similarity_scores)
+    st.button("Back to Health Goals", key="back_to_goals")
     st.subheader("Top 5 Recipe")
     st.markdown("This page displays *recipes* along with details including images, meal names, explanatios, instructions, and YouTube links.")
     # st.write("Current Similarity Scores:", st.session_state.similarity_scores)
@@ -230,7 +237,6 @@ def top_recipe_page():
                     st.text("No YouTube link available.")
 
     st.markdown("---")
-    st.button("Back to Health Goals", key="back_to_goals")
     st.success("End of recipes.")
 
 def main():
@@ -239,16 +245,20 @@ def main():
 
     # Toaster tips
     tips = [
-        "Did you get your healthy meal today?",
-        "Remember to stay hydrated!",
-        "A balanced diet is a key to a healthy life.",
-        "Don't forget to include fruits and vegetables in your meals.",
-        "Healthy eating is a journey, not a destination.",
-        "Small changes can make a big difference in your health.",
-        "Eat a variety of foods to get all the nutrients you need.",
-        "Moderation is the key to a healthy diet.",
-        "Enjoy your food, but eat less.",
-        "Make half your plate fruits and vegetables."
+        "Nourish Your Soul: Cultivating Wellness.",
+        "Embrace Wholeness: Elevating Wellness.",
+        "Health in Harmony: Discover Wellness.",
+        "Pure Vitality: Nurturing Wellness.",
+        "Flourish Inside Out: Achieving Wellness.",
+        "Wellness Journey: Transforming Lives.",
+        "Radiant Health: Uniting Flavor and Wellness.",
+        "One Thoughtful Medicinal Meal at a Time.",
+        "One Medicinal Cuisine at a Time.",
+        "One Medicinal Meal at a Time.",
+        "One Healing Dish at a Time.",
+        "One Nourishing Plate at a Time.",
+        "One Medicinal Bite at a Time.",
+        "One Wholesome Meal at a Time."
     ]
 
     st.toast(random.choice(tips))

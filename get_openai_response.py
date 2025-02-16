@@ -108,8 +108,16 @@ def get_meals_from_response(ingredients):
         meal = meals.iloc[i, 0][0]
         for i in range(20):
             # print(meal[f'strIngredient{i+1}'].lower())
-            extracted_meal_ingredients.append(meal[f'strIngredient{i+1}'].lower() if meal[f'strIngredient{i+1}'] else "")
+            extracted_meal_ingredients.append(meal[f'strIngredient{i+1}'].lower().strip() if meal[f'strIngredient{i+1}'] else "")
+        
+        extracted_meal_ingredients = list(filter(None, extracted_meal_ingredients))
+        exception_ingredient = ["water"]
+        for ingredient in exception_ingredient:
+            if ingredient in extracted_meal_ingredients:
+                extracted_meal_ingredients.remove(ingredient)
+
         extracted_meals.append({"id": meal["idMeal"], "name": meal["strMeal"], "ingredients": extracted_meal_ingredients})
+        
     similarity_scores = {}
     for meal_ingredients in extracted_meals:
         # intersection = set()
@@ -118,7 +126,7 @@ def get_meals_from_response(ingredients):
         #         if ingredient in meal_ingredient or meal_ingredient in ingredient:
         #             intersection.add(meal_ingredient)
         intersection = set(meal_ingredients['ingredients']).intersection(set(ingredients))
-        similarity_scores[meal_ingredients['id']] = {"intersection": list(intersection), "exception": list(set(ingredients) - intersection), "similarity_score": len(intersection) / len(ingredients), "total_overlap_amount": len(intersection), "name": meal_ingredients['name']}
+        similarity_scores[meal_ingredients['id']] = {"intersection": list(intersection), "exception": list(set(meal_ingredients['ingredients']) - intersection), "similarity_score": len(intersection) / len(ingredients), "total_overlap_amount": len(intersection), "name": meal_ingredients['name']}
         
     
     # sort the similarity scores
