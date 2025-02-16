@@ -266,7 +266,7 @@ def top_recipe_page():
                 
                 st.dataframe(df_ingredients, use_container_width=True)
 
-                st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
+                # st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
                 st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
                 st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
                 st.markdown("**Instructions:**")
