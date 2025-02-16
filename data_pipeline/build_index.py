@@ -24,6 +24,9 @@ def build_forward_index(data):
         forward_index[meal_id] = {
             'strMeal': item['strMeal'],
             'strInstructions': item['strInstructions'],
+            'strCategory': item['strCategory'],
+            'strYoutube': item['strYoutube'],
+            'strArea': item['strArea'],
             'strMealThumb': item['strMealThumb'],
             'ingredients': {},
             'health_benefit': item.get('health_benefit', {})
@@ -91,7 +94,7 @@ def sort_and_save_categories(categories, output_dir):
 def main():
     # Set up paths
     current_dir = Path(__file__).parent
-    data_dir = current_dir
+    data_dir = current_dir / '../backup'
     output_dir = current_dir / 'health_indices'
 
     data = load_json_files(data_dir)

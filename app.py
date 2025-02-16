@@ -8,6 +8,7 @@ from health_matching import find_matching_recipes
 import json
 import random
 import time
+from datetime import datetime
 
 # ----- PAGE CONFIG & STYLES -----
 st.set_page_config(
@@ -52,6 +53,11 @@ st.markdown(
     cursor: pointer;
     }
 
+    .stButton:hover {
+    color: var(--primary-color-black);
+    font-weight: bold;
+    }
+    
     .stButton > button {
     background-color: var(--accent-color-light-grey);
     }
@@ -81,6 +87,35 @@ st.markdown(
     .stCheckbox {
     margin-bottom: 20px;
     }
+    .stMetric, .stMetric * {
+      color: #000000 !important;
+    }
+    .stTable, .stTable * {
+      color: #000000 !important;
+    }
+    .stContainer {
+        background-color: #F9F9F9;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    .metric-container {
+        background-color: #fff;
+        border-radius: 6px;
+        padding: 10px 15px;
+        text-align: center;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+    stTextArea textarea,
+    .stNumberInput input {
+        color: #000000 !important;
+        background-color: #FFFFFF !important;
+    }
+    /* Ensure form labels are black */
+    .stForm label,
+    .stForm span {
+        color: #000000 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -108,8 +143,20 @@ def initialize_session_state():
         st.session_state.similarity_scores = None
     if 'ingredient_list' not in st.session_state:
         st.session_state.ingredient_list = None
+    if "token_balance" not in st.session_state:
+        st.session_state.token_balance = 100  # starting tokens
+    if "transactions" not in st.session_state:
+        st.session_state.transactions = [{
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Description": "Initial Balance",
+            "Tokens": 100,
+            "Balance": 100
+        }]
+    if 'contributions' not in st.session_state:
+        st.session_state.contributions = []
 
 def go_to_recipe_page(goal):
+    st.balloons()
     st.session_state.clicked = True
     st.session_state.selected_goal = goal
     st.session_state.goal_description = health_goals[goal]
@@ -129,7 +176,7 @@ def health_goal_page():
             st.write("""... more to come.""")
 
     # Image upload section
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Choose a receipt...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         st.balloons()
         image = np.array(Image.open(uploaded_file))
@@ -165,6 +212,7 @@ def health_goal_page():
 
 def top_recipe_page():
     print("Entering top_recipe_page with similarity scores:", st.session_state.similarity_scores)
+    st.button("Back to Health Goals", key="back_to_goals")
     st.subheader("Top 5 Recipe")
     st.markdown("This page displays *recipes* along with details including images, meal names, explanatios, instructions, and YouTube links.")
     # st.write("Current Similarity Scores:", st.session_state.similarity_scores)
@@ -172,6 +220,8 @@ def top_recipe_page():
         st.info("See checklists for ingredients you have and don't have from your photo.")
     
     goal = st.session_state.selected_goal
+    st.markdown(f'''
+        Top 5 Recipes for _{goal}_:''')
     recipes = find_matching_recipes([st.session_state.selected_goal]).get(goal)
 
     # Load the JSON file from the data folder
@@ -184,7 +234,6 @@ def top_recipe_page():
 
     # Loop over each recipe in the JSON file and display the details
     for rec in recipes:
-        st.markdown("---")
         # Header with recipe name
         recipe_name = rec.get("strMeal", "No Recipe Name")
         st.header(recipe_name)
@@ -217,21 +266,109 @@ def top_recipe_page():
                 
                 st.dataframe(df_ingredients, use_container_width=True)
 
-                # st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
-                # st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
-                # st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
+                st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
+                st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
+                st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
                 st.markdown("**Instructions:**")
                 st.write(rec.get("strInstructions", "N/A"))
-                # youtube_link = rec.get("strYoutube")
-                # if youtube_link:
-                #     st.markdown(f"**YouTube Link:** {youtube_link}")
-                #     st.video(youtube_link)
-                # else:
-                #     st.text("No YouTube link available.")
+                youtube_link = rec.get("strYoutube")
+                if youtube_link:
+                    st.markdown(f"**YouTube Link:** {youtube_link}")
+                    st.video(youtube_link)
+                else:
+                    st.text("No YouTube link available.")
 
     st.markdown("---")
-    st.button("Back to Health Goals", key="back_to_goals")
     st.success("End of recipes.")
+
+# ----- TOKEN WALLET PAGE -----
+def token_wallet_page():
+    st.title("Token Wallet")
+    st.markdown("Welcome to your token wallet! Here you can view your current token balance, review recent transactions, and purchase additional tokens.")
+
+    # Ensure token balance and transactions are initialized
+    if "token_balance" not in st.session_state:
+        st.session_state.token_balance = 100  # starting tokens
+    if "transactions" not in st.session_state:
+        st.session_state.transactions = [{
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Description": "Initial Balance",
+            "Tokens": 100,
+            "Balance": 100
+        }]
+
+    # Display current token balance
+    st.metric("Current Token Balance", st.session_state.token_balance)
+
+    st.markdown("### Recent Transactions")
+    df = pd.DataFrame(st.session_state.transactions)
+    st.table(df)
+
+    st.markdown("### Buy More Tokens")
+    tokens_to_buy = st.number_input("Enter number of tokens to buy:", min_value=1, step=1, value=10)
+    if st.button("Buy Tokens"):
+        # Update the token balance
+        st.session_state.token_balance += tokens_to_buy
+
+        # Create a new transaction record
+        new_txn = {
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Description": "Purchased Tokens",
+            "Tokens": tokens_to_buy,
+            "Balance": st.session_state.token_balance
+        }
+        st.session_state.transactions.append(new_txn)
+
+        # Debug output: show new transaction and full list
+        st.write("New Transaction:", new_txn)
+        st.write("All Transactions:", st.session_state.transactions)
+        # Instead of forcing an immediate rerun, use a small delay or ask the user to refresh
+        time.sleep(0.2)
+        st.experimental_rerun()  # Try commenting this line out to see if the table updates correctly
+
+def contribution_page():
+    st.title("Contribute Your Recipe")
+    st.markdown(
+        """
+        Help improve our AI model by contributing your favorite recipes. The more your recipe is recommended by the community,
+        the more tokens you'll receive as an appreciation bonus!
+        """
+    )
+    
+    # Recipe contribution form
+    with st.form("contribution_form", clear_on_submit=True):
+        recipe_name = st.text_input("Recipe Name")
+        recipe_description = st.text_area("Recipe Description / Instructions", height=150)
+        submitted = st.form_submit_button("Submit Recipe")
+        
+    if submitted:
+        recommended_count = random.randint(0, 20)
+        base_tokens = 10  # base tokens for contributing a recipe
+        bonus_tokens = int(recommended_count) * 2  # bonus per recommendation
+        total_tokens_awarded = base_tokens + bonus_tokens
+        
+        st.session_state.token_balance += total_tokens_awarded
+        
+        # Record the contribution (simulated database)
+        new_contribution = {
+            "Recipe Name": recipe_name,
+            "Recommendations": recommended_count,
+            "Awarded Tokens": total_tokens_awarded,
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        st.session_state.contributions.append(new_contribution)
+        
+        st.success(f"Thank you for contributing! You've been awarded {total_tokens_awarded} tokens.")
+        st.experimental_rerun()
+    
+    st.markdown("### Your Contributions")
+    if st.session_state.contributions:
+        df = pd.DataFrame(st.session_state.contributions)
+        st.table(df)
+    else:
+        st.info("No contributions yet. Submit a recipe to see it here!")
+
+
 
 def main():
     # Initialize session state
@@ -239,26 +376,30 @@ def main():
 
     # Toaster tips
     tips = [
-        "Did you get your healthy meal today?",
-        "Remember to stay hydrated!",
-        "A balanced diet is a key to a healthy life.",
-        "Don't forget to include fruits and vegetables in your meals.",
-        "Healthy eating is a journey, not a destination.",
-        "Small changes can make a big difference in your health.",
-        "Eat a variety of foods to get all the nutrients you need.",
-        "Moderation is the key to a healthy diet.",
-        "Enjoy your food, but eat less.",
-        "Make half your plate fruits and vegetables."
+        "Nourish Your Soul: Cultivating Wellness.",
+        "Embrace Wholeness: Elevating Wellness.",
+        "Health in Harmony: Discover Wellness.",
+        "Pure Vitality: Nurturing Wellness.",
+        "Flourish Inside Out: Achieving Wellness.",
+        "Wellness Journey: Transforming Lives.",
+        "Radiant Health: Uniting Flavor and Wellness.",
+        "One Thoughtful Medicinal Meal at a Time.",
+        "One Medicinal Cuisine at a Time.",
+        "One Medicinal Meal at a Time.",
+        "One Healing Dish at a Time.",
+        "One Nourishing Plate at a Time.",
+        "One Medicinal Bite at a Time.",
+        "One Wholesome Meal at a Time."
     ]
 
     st.toast(random.choice(tips))
-    
+
     with st.container():
         st.sidebar.title("Navigation")
         previous_page = st.session_state.get('current_page', 'Health Goals')
         selected_page = st.sidebar.radio(
             "Go to",
-            ["Health Goals", "Top Recipes"]
+            ["Health Goals", "Top Recipes", "Token", "Contribution"]
         )
         
         # Track page changes
@@ -267,15 +408,26 @@ def main():
             print(f"Page changed from {previous_page} to {selected_page}")
             print(f"Current similarity scores: {st.session_state.similarity_scores}")
 
-        st.title("Kirby.AI")
+        st.html("""
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="https://i.ibb.co/hx8VhjyR/round-kirchin.png" alt="Kirchin" width="100" height="100">
+                <h1 style="margin: 10px; font-size: 48px;">Kirchen.AI</h1>
+            </div>
+        """)
         st.markdown("""
-            Welcome to **Kirby.AI**: The best foody recommender in the market.
+            #### Welcome to **Kirchen.AI**: The recipe recommender that makes your grandma happy :balloon: ####
         """)
 
                 
         # Page routing based on session state
         if st.session_state.clicked or selected_page == "Top Recipes":
             top_recipe_page()
+            st.session_state.clicked = False
+        if st.session_state.clicked or selected_page == "Token":
+            token_wallet_page()
+            st.session_state.clicked = False
+        if st.session_state.clicked or selected_page == "Contribution":
+            contribution_page()
             st.session_state.clicked = False
         else:
             health_goal_page()
