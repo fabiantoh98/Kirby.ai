@@ -8,6 +8,7 @@ from health_matching import find_matching_recipes
 import json
 import random
 import time
+from datetime import datetime
 
 # ----- PAGE CONFIG & STYLES -----
 st.set_page_config(
@@ -81,6 +82,35 @@ st.markdown(
     .stCheckbox {
     margin-bottom: 20px;
     }
+    .stMetric, .stMetric * {
+      color: #000000 !important;
+    }
+    .stTable, .stTable * {
+      color: #000000 !important;
+    }
+    .stContainer {
+        background-color: #F9F9F9;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    .metric-container {
+        background-color: #fff;
+        border-radius: 6px;
+        padding: 10px 15px;
+        text-align: center;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+    stTextArea textarea,
+    .stNumberInput input {
+        color: #000000 !important;
+        background-color: #FFFFFF !important;
+    }
+    /* Ensure form labels are black */
+    .stForm label,
+    .stForm span {
+        color: #000000 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -108,6 +138,17 @@ def initialize_session_state():
         st.session_state.similarity_scores = None
     if 'ingredient_list' not in st.session_state:
         st.session_state.ingredient_list = None
+    if "token_balance" not in st.session_state:
+        st.session_state.token_balance = 100  # starting tokens
+    if "transactions" not in st.session_state:
+        st.session_state.transactions = [{
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Description": "Initial Balance",
+            "Tokens": 100,
+            "Balance": 100
+        }]
+    if 'contributions' not in st.session_state:
+        st.session_state.contributions = []
 
 def go_to_recipe_page(goal):
     st.balloons()
@@ -233,6 +274,95 @@ def top_recipe_page():
     st.button("Back to Health Goals", key="back_to_goals")
     st.success("End of recipes.")
 
+# ----- TOKEN WALLET PAGE -----
+def token_wallet_page():
+    st.title("Token Wallet")
+    st.markdown("Welcome to your token wallet! Here you can view your current token balance, review recent transactions, and purchase additional tokens.")
+
+    # Ensure token balance and transactions are initialized
+    if "token_balance" not in st.session_state:
+        st.session_state.token_balance = 100  # starting tokens
+    if "transactions" not in st.session_state:
+        st.session_state.transactions = [{
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Description": "Initial Balance",
+            "Tokens": 100,
+            "Balance": 100
+        }]
+
+    # Display current token balance
+    st.metric("Current Token Balance", st.session_state.token_balance)
+
+    st.markdown("### Recent Transactions")
+    df = pd.DataFrame(st.session_state.transactions)
+    st.table(df)
+
+    st.markdown("### Buy More Tokens")
+    tokens_to_buy = st.number_input("Enter number of tokens to buy:", min_value=1, step=1, value=10)
+    if st.button("Buy Tokens"):
+        # Update the token balance
+        st.session_state.token_balance += tokens_to_buy
+
+        # Create a new transaction record
+        new_txn = {
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Description": "Purchased Tokens",
+            "Tokens": tokens_to_buy,
+            "Balance": st.session_state.token_balance
+        }
+        st.session_state.transactions.append(new_txn)
+
+        # Debug output: show new transaction and full list
+        st.write("New Transaction:", new_txn)
+        st.write("All Transactions:", st.session_state.transactions)
+        # Instead of forcing an immediate rerun, use a small delay or ask the user to refresh
+        time.sleep(0.2)
+        st.experimental_rerun()  # Try commenting this line out to see if the table updates correctly
+
+def contribution_page():
+    st.title("Contribute Your Recipe")
+    st.markdown(
+        """
+        Help improve our AI model by contributing your favorite recipes. The more your recipe is recommended by the community,
+        the more tokens you'll receive as an appreciation bonus!
+        """
+    )
+    
+    # Recipe contribution form
+    with st.form("contribution_form", clear_on_submit=True):
+        recipe_name = st.text_input("Recipe Name")
+        recipe_description = st.text_area("Recipe Description / Instructions", height=150)
+        submitted = st.form_submit_button("Submit Recipe")
+        
+    if submitted:
+        recommended_count = random.randint(0, 20)
+        base_tokens = 10  # base tokens for contributing a recipe
+        bonus_tokens = int(recommended_count) * 2  # bonus per recommendation
+        total_tokens_awarded = base_tokens + bonus_tokens
+        
+        st.session_state.token_balance += total_tokens_awarded
+        
+        # Record the contribution (simulated database)
+        new_contribution = {
+            "Recipe Name": recipe_name,
+            "Recommendations": recommended_count,
+            "Awarded Tokens": total_tokens_awarded,
+            "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        st.session_state.contributions.append(new_contribution)
+        
+        st.success(f"Thank you for contributing! You've been awarded {total_tokens_awarded} tokens.")
+        st.experimental_rerun()
+    
+    st.markdown("### Your Contributions")
+    if st.session_state.contributions:
+        df = pd.DataFrame(st.session_state.contributions)
+        st.table(df)
+    else:
+        st.info("No contributions yet. Submit a recipe to see it here!")
+
+
+
 def main():
     # Initialize session state
     initialize_session_state()
@@ -258,7 +388,7 @@ def main():
         previous_page = st.session_state.get('current_page', 'Health Goals')
         selected_page = st.sidebar.radio(
             "Go to",
-            ["Health Goals", "Top Recipes"]
+            ["Health Goals", "Top Recipes", "Token", "Contribution"]
         )
         
         # Track page changes
@@ -281,6 +411,12 @@ def main():
         # Page routing based on session state
         if st.session_state.clicked or selected_page == "Top Recipes":
             top_recipe_page()
+            st.session_state.clicked = False
+        if st.session_state.clicked or selected_page == "Token":
+            token_wallet_page()
+            st.session_state.clicked = False
+        if st.session_state.clicked or selected_page == "Contribution":
+            contribution_page()
             st.session_state.clicked = False
         else:
             health_goal_page()
