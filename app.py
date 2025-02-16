@@ -12,7 +12,7 @@ import time
 # ----- PAGE CONFIG & STYLES -----
 st.set_page_config(
     page_title="Kirby.AI",
-    page_icon="🌆",
+    page_icon="💖",
     layout="wide"
 )
 # Inject a bit of CSS to style metric cards, titles, etc.
@@ -203,19 +203,21 @@ def top_recipe_page():
 
         reciept_ingredient_list = st.session_state.ingredient_list.lower() if st.session_state.ingredient_list else []
         for k,v in ingredients_dict.items():
-            ingredients_list.append({"Ingredient": k, "Quantity": v, "checklist": k.lower() in reciept_ingredient_list})
+            ingredients_list.append({"Ingredient": k, "Quantity": v, "Checklist": k.lower() in reciept_ingredient_list})
         df_ingredients = pd.DataFrame(ingredients_list)
         df_ingredients.index += 1 
         
         with col2:
             with st.expander("Show Details"):
                 st.markdown(f"**Health Goal:** {goal}")
+                # health_score = rec.get('health_score', 0)
+                # st.markdown(f"**Health Score:** {'⭐' * int(health_score)}{'☆' * (10 - int(health_score))} ({health_score}/10)")
                 st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
                 st.markdown(f"**Explanation:** {rec.get('reason', 'N/A')}")
                 
                 st.dataframe(df_ingredients, use_container_width=True)
 
-                st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
+                # st.markdown(f"**Health Score:** {rec.get('health_score', 'N/A')}")
                 # st.markdown(f"**Category:** {rec.get('strCategory', 'N/A')}")
                 # st.markdown(f"**Area:** {rec.get('strArea', 'N/A')}")
                 st.markdown("**Instructions:**")
