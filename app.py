@@ -270,11 +270,11 @@ def main():
         st.html("""
             <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="https://i.ibb.co/hx8VhjyR/round-kirchin.png" alt="Kirchin" width="100" height="100">
-                <h1 style="margin: 10px; font-size: 48px;">Kirby.AI</h1>
+                <h1 style="margin: 10px; font-size: 48px;">Kirchen.AI</h1>
             </div>
         """)
         st.markdown("""
-            #### Welcome to **Kirby.AI**: The recipe recommender that makes your grandma happy :balloon: ####
+            #### Welcome to **Kirchen.AI**: The recipe recommender that makes your grandma happy :balloon: ####
         """)
 
                 
